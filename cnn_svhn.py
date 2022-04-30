@@ -9,6 +9,7 @@ import tensorflow as tf
 import json
 from os import listdir
 from os.path import isfile, join
+import pandas as pd
 # os.chdir("/home/users/mlove/MSBA/BZAN 554 Deep Learning/Projects/Project 3")
 
 
@@ -22,11 +23,12 @@ test_path_cole = 'C:/Users/cole\Documents/Spring MSBA/Deep Learning/SVHN/test'
 train_path_cole='C:/Users/cole\Documents/Spring MSBA/Deep Learning/SVHN/train'
 
 
+test_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/test'
+train_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train'
+
 ### Set your paths here####
-train_path = train_path_cole
-test_path = test_path_cole
-
-
+train_path = train_path_marisa
+test_path = test_path_marisa
 
 
 # set directory to train
@@ -40,7 +42,7 @@ train_file_names = [f for f in listdir(train_path) if isfile(join(train_path, f)
 ims_train=[]
 
 for i in range(len(train_file_names)):
-    img=mpimg.imread(train_file_names[i])
+    img=mpimg.imread(train_file_names[i] + '.png')
     ims_train.append(img)
 
 train_file_names[0]
@@ -61,16 +63,33 @@ for i in range(1,1000):
     img=mpimg.imread(str(i)+'.png')
     ims_test.append(img)
 
-plt.imshow(ims_test[2])
+plt.imshow(ims_test[1])
 plt.show()
 
 
-### read in json  Digit structure file file
+### read in json TEST digit structure to df 
 with open(test_path+'/digitStruct.json', 'r') as f:
-  digits = json.load(f)
+  test_digits = json.load(f)
 
-digits[77]
+test_df = pd.json_normalize(test_digits, 'boxes', 'filename', 
+                    record_prefix='boxes_')
 
+test_df.locations = pd.DataFrame(test_df.locations.values.tolist())['name']
+test_df = test_df.groupby('filename')['boxes'].apply(','.join).reset_index()
+print (test_df)
+
+
+
+### read in json TRAIN digit structure to df 
+with open(train_path+'/digitStruct.json', 'r') as f:
+  train_digits = json.load(f)
+
+train_df = pd.json_normalize(train_digits, 'boxes', 'filename', 
+                    record_prefix='boxes_')
+
+train_df.locations = pd.DataFrame(train_df.locations.values.tolist())['name']
+train_df = train_df.groupby('filename')['boxes'].apply(','.join).reset_index()
+print (train_df)
 
 
 
