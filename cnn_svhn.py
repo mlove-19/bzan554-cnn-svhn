@@ -1,4 +1,9 @@
+from enum import unique
+from fileinput import filename
+from multiprocessing.sharedctypes import Array
+from operator import concat
 from tokenize import PlainToken
+from unicodedata import digit
 import numpy as np
 import os
 #import PIL
@@ -7,7 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import tensorflow as tf
 import json
-from os import listdir
+from os import listdir, rename
 from os.path import isfile, join
 import pandas as pd
 # os.chdir("/home/users/mlove/MSBA/BZAN 554 Deep Learning/Projects/Project 3")
@@ -74,8 +79,7 @@ with open(test_path+'/digitStruct.json', 'r') as f:
 test_df = pd.json_normalize(test_digits, 'boxes', 'filename', 
                     record_prefix='boxes_')
 
-test_df.locations = pd.DataFrame(test_df.locations.values.tolist())['name']
-test_df = test_df.groupby('filename')['boxes'].apply(','.join).reset_index()
+
 print (test_df)
 
 
@@ -87,9 +91,30 @@ with open(train_path+'/digitStruct.json', 'r') as f:
 train_df = pd.json_normalize(train_digits, 'boxes', 'filename', 
                     record_prefix='boxes_')
 
-train_df.locations = pd.DataFrame(train_df.locations.values.tolist())['name']
-train_df = train_df.groupby('filename')['boxes'].apply(','.join).reset_index()
 print (train_df)
+
+
+train_df_new = pd.DataFrame(train_df['filename'].value_counts().rename_axis('filename').reset_index(name='digit_length'))
+
+
+#Finding min and max coordinated for complete bounding box
+y_df = train_df[["boxes_top","filename"]]
+y_max_coor_df = y_df.groupby('filename').max().reset_index()
+y_min_coor_df = y_df.groupby('filename').min().reset_index()
+
+
+
+x_df = train_df[["boxes_left","filename"]]
+x_max_coor_df = x_df.groupby('filename').max().reset_index()
+x_min_coor_df = x_df.groupby('filename').min().reset_index()
+
+#Joining data 
+new_data = y_max_coor_df.merge(y_min_coor_df,on='filename')
+new_data = new_data.merge(x_max_coor_df,on='filename')
+new_data = new_data.merge(x_min_coor_df,on='filename')
+new_data = new_data.merge(train_df_new,on='filename')
+
+
 
 
 
