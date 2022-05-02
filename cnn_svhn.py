@@ -32,8 +32,8 @@ test_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignmen
 train_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train'
 
 ### Set your paths here####
-train_path = train_path_marisa
-test_path = test_path_marisa
+train_path = train_path_jake
+test_path = test_path_jake
 
 
 # set directory to train
@@ -47,7 +47,7 @@ train_file_names = [f for f in listdir(train_path) if isfile(join(train_path, f)
 ims_train=[]
 
 for i in range(len(train_file_names)):
-    img=mpimg.imread(train_file_names[i] + '.png')
+    img=mpimg.imread(train_file_names[i])
     ims_train.append(img)
 
 train_file_names[0]
@@ -65,7 +65,7 @@ os.getcwd()
 ims_test=[]
 
 for i in range(1,1000):
-    img=mpimg.imread(str(i)+'.png')
+    img=mpimg.imread(str(i))
     ims_test.append(img)
 
 plt.imshow(ims_test[1])
@@ -115,8 +115,26 @@ new_data = new_data.merge(x_min_coor_df,on='filename')
 new_data = new_data.merge(train_df_new,on='filename')
 
 
+#creating joined labels
+new=new_data
+new["label"] = 0
 
+for i in range(len(new_data)):
+#for i in range(15):
+  filename=new['filename'][i]
+  subset=train_df[train_df['filename']==filename]
+  subset=subset.sort_values('boxes_left',axis=0,ascending=True).reset_index()
+  num=[]
+  for i in range(len(subset)):
+    if subset['boxes_label'][i]==10:
+      num.append(0)
+    else:
+      num.append(subset['boxes_label'][i])
+  num = [ int(x) for x in num ]
+  num = int(''.join(map(str,num)))  
+  new.loc[ new['filename'] == filename, 'label']=num 
 
+new_data=new
 
 ######################
 ### Project Phases ###
