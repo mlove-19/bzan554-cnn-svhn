@@ -116,25 +116,26 @@ new_data = new_data.merge(train_df_new,on='filename')
 
 
 #creating joined labels
-new=new_data
-new["label"] = 0
+
+new_data["label"] = 0
+new=pd.DataFrame(train_df.groupby('filename').agg(list)).reset_index()
+new=new[['filename','boxes_label']]
+new_data = new_data.merge(new,on='filename')
 
 for i in range(len(new_data)):
-#for i in range(15):
+#for i in range(25):
   filename=new['filename'][i]
-  subset=train_df[train_df['filename']==filename]
-  subset=subset.sort_values('boxes_left',axis=0,ascending=True).reset_index()
-  num=[]
-  for i in range(len(subset)):
-    if subset['boxes_label'][i]==10:
-      num.append(0)
-    else:
-      num.append(subset['boxes_label'][i])
+  num=new_data['boxes_label'][i]
   num = [ int(x) for x in num ]
-  num = int(''.join(map(str,num)))  
-  new.loc[ new['filename'] == filename, 'label']=num 
+  for j in range(len(num)):
+    if num[j]==10:
+      num[j]=0
+    else:
+      num[j]=num[j]
+  num = int(''.join(map(str,num)))
+  new_data.loc[ new_data['filename'] == filename, 'label']=num 
 
-new_data=new
+
 
 ######################
 ### Project Phases ###
