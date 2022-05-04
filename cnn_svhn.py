@@ -15,6 +15,7 @@ import json
 from os import listdir, rename
 from os.path import isfile, join
 import pandas as pd
+import cv2
 # os.chdir("/home/users/mlove/MSBA/BZAN 554 Deep Learning/Projects/Project 3")
 
 
@@ -134,6 +135,42 @@ for i in range(len(new_data)):
       num[j]=num[j]
   num = int(''.join(map(str,num)))
   new_data.loc[ new_data['filename'] == filename, 'label']=num 
+
+new_data.rename(columns = {'boxes_top_y':'y_max', 'boxes_top_x':'x_max','boxes_left_x':'x_min','boxes_left_y':'y_min'}, inplace = True)
+
+os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/")
+new_data.to_csv('bounding_box.csv')
+
+# set working directory to folder with bounding box labels csv
+os.getcwd()
+os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/")
+
+# make folder to store cropped images
+os.mkdir("cropped_images")
+
+# read in labels csv
+df = pd.read_csv("bounding_box.csv")
+print(df.head())
+
+# set working directory to folder with check images
+os.getcwd()
+os.chdir(train_path_marisa)
+
+# setting path of output folder
+path = "/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/cropped_images" 
+# cropping
+for i in range(len(df)):
+    #img=mpimg.imread(train_file_names[i]+'.png')
+    img=mpimg.imread(train_file_names[i])
+    #ims_train.append(img)
+    #img = cv2.imread(df.ImageID[i]) # read in image
+
+
+    # crop image using coordinates from df
+    cropped_image = img[int(df.y_min[i]):int(df.y_max[i]), int(df.x_min[i]):int(df.x_max[i])] # img[ymin:ymax, xmin:xmax]
+
+    # save cropped image to output folder
+    cv2.imwrite(os.path.join(path , df.filename[i]), cropped_image)
 
 
 
