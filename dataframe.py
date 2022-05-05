@@ -185,7 +185,12 @@ for i in range(len(new_test_data)):
 
 df_test = new_test_data[['filename','label']]
 
+path_repo = 'C:/Users/jamfo/Documents/Deep Learning/bzan554-cnn-svhn'
+os.chdir(path_repo)
+os.getcwd()
 
+df_train.to_csv('train_labels.csv',index=False)
+df_test.to_csv('test_labels.csv',index=False)
 
 
 
