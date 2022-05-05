@@ -33,8 +33,8 @@ test_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignmen
 train_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train'
 
 ### Set your paths here####
-train_path = train_path_jake
-test_path = test_path_jake
+train_path = test_path_marisa
+test_path = train_path_marisa
 
 
 # set directory to train
@@ -95,25 +95,25 @@ train_df = pd.json_normalize(train_digits, 'boxes', 'filename',
 print (train_df)
 
 
-train_df_new = pd.DataFrame(train_df['filename'].value_counts().rename_axis('filename').reset_index(name='digit_length'))
-
-
 #Finding min and max coordinated for complete bounding box
-y_df = train_df[["boxes_top","filename"]]
-y_max_coor_df = y_df.groupby('filename').max().reset_index()
-y_min_coor_df = y_df.groupby('filename').min().reset_index()
+y_df = train_df[["boxes_top","filename",'boxes_width']]
+y_max_coor_df = y_df.groupby('filename', sort=False).max().reset_index()
+y_min_coor_df = y_df.groupby('filename', sort=False).min().reset_index()
 
 
+def min_coor(df):
+  y_min_value = (df['boxes_top'].min() - df[''])
 
 x_df = train_df[["boxes_left","filename"]]
-x_max_coor_df = x_df.groupby('filename').max().reset_index()
-x_min_coor_df = x_df.groupby('filename').min().reset_index()
+x_max_coor_df = x_df.groupby('filename', sort = False).max().reset_index()
+x_min_coor_df = x_df.groupby('filename',sort = False ).min().reset_index()
 
 #Joining data 
 new_data = y_max_coor_df.merge(y_min_coor_df,on='filename')
 new_data = new_data.merge(x_max_coor_df,on='filename')
 new_data = new_data.merge(x_min_coor_df,on='filename')
-new_data = new_data.merge(train_df_new,on='filename')
+
+
 
 
 #creating joined labels
@@ -138,41 +138,88 @@ for i in range(len(new_data)):
 
 new_data.rename(columns = {'boxes_top_y':'y_max', 'boxes_top_x':'x_max','boxes_left_x':'x_min','boxes_left_y':'y_min'}, inplace = True)
 
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/")
-new_data.to_csv('bounding_box.csv')
+os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
+new_data.to_csv('bounding_box.csv',index=False)
 
 # set working directory to folder with bounding box labels csv
 os.getcwd()
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/")
+os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
 
 # make folder to store cropped images
 os.mkdir("cropped_images")
 
 # read in labels csv
-df = pd.read_csv("bounding_box.csv")
+df = pd.read_csv("bounding_box.csv", index_col = False)
 print(df.head())
 
 # set working directory to folder with check images
 os.getcwd()
-os.chdir(train_path_marisa)
+os.chdir('/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train')
 
 # setting path of output folder
 path = "/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/cropped_images" 
 # cropping
 for i in range(len(df)):
     #img=mpimg.imread(train_file_names[i]+'.png')
-    img=mpimg.imread(train_file_names[i])
+    #img=mpimg.imread(df.filename[1])
     #ims_train.append(img)
-    #img = cv2.imread(df.ImageID[i]) # read in image
+    img = cv2.imread(df.filename[1]) # read in image
+  
+    img=mpimg.imread(df.filename[1])
+    ims_train.append(img)
 
+    train_file_names[0]
+    plt.imshow(img)
+    plt.show()
 
     # crop image using coordinates from df
-    cropped_image = img[int(df.y_min[i]):int(df.y_max[i]), int(df.x_min[i]):int(df.x_max[i])] # img[ymin:ymax, xmin:xmax]
+    cropped_image = img[int(df.y_min[1]):int(df.y_max[1]), int(df.x_min[1]):int(df.x_max[1])] # img[ymin:ymax, xmin:xmax]
 
     # save cropped image to output folder
-    cv2.imwrite(os.path.join(path , df.filename[i]), cropped_image)
+    cv2.imwrite(os.path.join(path , df.filename[1]), cropped_image)
 
 
+img[range(int(df.y_min[1]),int(df.y_max[1])), range(int(df.x_min[1]),int(df.x_max[1]))]
+############################################################
+
+# Padding Cropped Images
+# Code adapted from https://stackoverflow.com/a/59698237
+
+# make folder to store padded images
+os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
+os.mkdir("images_padded")
+
+# change working directory to cropped images folder
+os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/images_padded")
+
+# setting path of output folder
+path = "/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/cropped_images" 
+
+for i in range(len(df)):
+    img = cv2.imread(df.filename[i]) # read in cropped image - can use same df and filnename column since names are the same, just in a different folder
+    old_image_height, old_image_width, channels = img.shape
+
+    # create new image of desired size and color (white) for padding
+    new_image_width = max(df.width)
+    new_image_height = max(df.height)
+    color = (255,255,255)
+    result = np.full((new_image_height,new_image_width, channels), color, dtype=np.uint8)
+
+    # compute center offset
+    x_center = (new_image_width - old_image_width) // 2
+    y_center = (new_image_height - old_image_height) // 2
+
+    # copy img image into center of result image
+    result[y_center:y_center+old_image_height, 
+        x_center:x_center+old_image_width] = img
+
+    """ # view result
+    cv2.imshow("result", result)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows() """
+
+    # save result
+    cv2.imwrite(os.path.join(path , df.filename[i]), result)
 
 ######################
 ### Project Phases ###
