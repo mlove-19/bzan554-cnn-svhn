@@ -21,8 +21,15 @@ import cv2
 
 ### Add your folder paths here##
 
-test_path_jake = 'C:/Users/jamfo/Documents/Deep Learning/bzan554-cnn-svhn/test'
-train_path_jake = 'C:/Users/jamfo/Documents/Deep Learning/bzan554-cnn-svhn/train'
+test_path_jake = 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test'
+train_path_jake = 'C:/Users/jamfo/Documents/Deep Learning/SVHN/train'
+main_path_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN'
+train_crop_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/train_cropped_images'
+train_padded_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/train_images_padded'
+test_crop_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test_cropped_images'
+test_padded_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test_images_padded'
+train_grey_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/train_images_grey'
+test_grey_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test_images_grey'
 
 
 test_path_cole = 'C:/Users/cole\Documents/Spring MSBA/Deep Learning/SVHN/test'
@@ -33,9 +40,15 @@ test_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignmen
 train_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train'
 
 ### Set your paths here####
-train_path = train_path_marisa
-test_path = test_path_marisa
-
+train_path = train_path_jake
+test_path = test_path_jake
+main_path=main_path_jake
+train_crop_path=train_crop_jake
+train_padded_path=train_padded_jake
+test_cropped_path=test_crop_jake
+test_padded_path=test_padded_jake
+train_grey_path=train_grey_jake
+test_grey_path=test_grey_jake
 
 # set directory to train
 os.chdir(train_path)
@@ -156,12 +169,12 @@ for i in range(len(new_train_data)):
 
 
 
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
+os.chdir(main_path)
 new_train_data.to_csv('train_bounding_box.csv',index=False)
 
 # set working directory to folder with bounding box labels csv
 os.getcwd()
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
+os.chdir(main_path)
 
 # make folder to store cropped images
 os.mkdir("train_cropped_images")
@@ -172,10 +185,10 @@ print(df.head())
 
 # set working directory to folder with check images
 os.getcwd()
-os.chdir('/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train')
+os.chdir(train_path)
 
 # setting path of output folder
-path = "/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train_cropped_images" 
+path =train_crop_path
 
 #Taking out -1 left value and replacing it with 0 
 df[['x_left']] = df[['x_left']].clip(lower = 0)
@@ -197,14 +210,14 @@ for i in range(len(df)):
 # Code adapted from https://stackoverflow.com/a/59698237
 
 # make folder to store padded images
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
+os.chdir(main_path)
 os.mkdir("train_images_padded")
 
 # change working directory to cropped images folder
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train_cropped_images")
+os.chdir(train_crop_path)
 
 # setting path of output folder
-path =  "/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train_images_padded"
+path =  train_padded_path
 
 
 for i in range(len(df)):
@@ -235,7 +248,24 @@ for i in range(len(df)):
 
 
 
+# make folder to store grey-scaled images
+os.chdir(main_path)
+os.mkdir("train_images_grey")
 
+# change working directory to padded images folder
+os.chdir(train_padded_path)
+
+# setting path of output folder
+path =  train_grey_path
+
+# grey_scaling
+for i in range(len(df)):
+  img = cv2.imread(df.filename[i]) # read in image
+      # crop image using coordinates from df
+  grey_image = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY) 
+
+      # save cropped image to output folder
+  cv2.imwrite(os.path.join(path , df.filename[i]), grey_image)
 
 
 
@@ -289,7 +319,7 @@ new_test_df['x_bottom'] = (new_test_df['x_left'] + new_test_df['width'])
 #creating joined labels
 
 new_test_df["label"] = 0
-new=pd.DataFrame(train_df.groupby('filename',sort=False).agg(list)).reset_index()
+new=pd.DataFrame(test_df.groupby('filename',sort=False).agg(list)).reset_index()
 new=new[['filename','boxes_label']]
 new_test_data = new_test_df.merge(new,on='filename')
 
@@ -309,12 +339,12 @@ for i in range(len(new_test_data)):
 
 
 
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
+os.chdir(main_path)
 new_test_data.to_csv('test_bounding_box.csv',index=False)
 
 # set working directory to folder with bounding box labels csv
 os.getcwd()
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
+os.chdir(main_path)
 
 # make folder to store cropped images
 os.mkdir("test_cropped_images")
@@ -325,10 +355,10 @@ print(df.head())
 
 # set working directory to folder with check images
 os.getcwd()
-os.chdir('/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/test')
+os.chdir(test_path)
 
 # setting path of output folder
-path = "/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/test_cropped_images" 
+path = test_cropped_path
 
 #Taking out -1 left value and replacing it with 0 
 df[['x_left']] = df[['x_left']].clip(lower = 0)
@@ -350,14 +380,14 @@ for i in range(len(df)):
 # Code adapted from https://stackoverflow.com/a/59698237
 
 # make folder to store padded images
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3")
+os.chdir(main_path)
 os.mkdir("test_images_padded")
 
 # change working directory to cropped images folder
-os.chdir("/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/test_cropped_images")
+os.chdir(test_cropped_path)
 
 # setting path of output folder
-path =  "/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/test_images_padded"
+path =  test_padded_path
 
 
 for i in range(len(df)):
@@ -385,6 +415,28 @@ for i in range(len(df)):
 
     # save result
     cv2.imwrite(os.path.join(path , df.filename[i]), result)
+
+
+
+# make folder to store grey-scaled images
+os.chdir(main_path)
+os.mkdir("test_images_grey")
+
+# change working directory to padded images folder
+os.chdir(test_padded_path)
+
+# setting path of output folder
+path =  test_grey_path
+
+# grey_scaling
+for i in range(len(df)):
+  img = cv2.imread(df.filename[i]) # read in image
+      # crop image using coordinates from df
+  grey_image = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY) 
+
+      # save cropped image to output folder
+  cv2.imwrite(os.path.join(path , df.filename[i]), grey_image)
+
 
 
 ######################
