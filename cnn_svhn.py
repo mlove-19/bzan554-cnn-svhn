@@ -31,6 +31,15 @@ test_padded_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test_images_padde
 train_grey_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/train_images_grey'
 test_grey_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test_images_grey'
 
+train_path_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/train"
+test_path_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/test"
+main_path_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN"
+train_crop_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/train_cropped_images"
+train_padded_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/train_images_padded"
+test_crop_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/test_cropped_images"
+test_padded_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/test_images_padded"
+train_grey_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/train_images_grey"
+test_grey_matt = "C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/test_images_grey"
 
 test_path_cole = 'C:/Users/cole\Documents/Spring MSBA/Deep Learning/SVHN/test'
 train_path_cole='C:/Users/cole\Documents/Spring MSBA/Deep Learning/SVHN/train'
@@ -40,15 +49,15 @@ test_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignmen
 train_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train'
 
 ### Set your paths here####
-train_path = train_path_jake
-test_path = test_path_jake
-main_path=main_path_jake
-train_crop_path=train_crop_jake
-train_padded_path=train_padded_jake
-test_cropped_path=test_crop_jake
-test_padded_path=test_padded_jake
-train_grey_path=train_grey_jake
-test_grey_path=test_grey_jake
+train_path = train_path_matt
+test_path = test_path_matt
+main_path = main_path_matt
+train_crop_path = train_crop_matt
+train_padded_path = train_padded_matt
+test_cropped_path = test_crop_matt
+test_padded_path = test_padded_matt
+train_grey_path = train_grey_matt
+test_grey_path = test_grey_matt
 
 # set directory to train
 os.chdir(train_path)
