@@ -40,6 +40,7 @@ X_train=[]
 for i in range(33402):
     img=mpimg.imread(str(i+1)+'.png')#.astype(np.float32)
     X_train.append(img)
+X_train = np.asarray(X_train)
 
 # plt.imshow(X_train[33401])
 # plt.show()
@@ -54,6 +55,7 @@ X_test=[]
 for i in range(13068):
     img=mpimg.imread(str(i+1)+'.png')#.astype(np.float32)
     X_test.append(img)
+X_test = np.asarray(X_test)
 
 # plt.imshow(X_test[13067])
 # plt.show()
@@ -65,130 +67,34 @@ X_train[1].shape # each image is 403x434
 n_softmax = len(str(np.max(y_train))) + 1 # 6+1 softmax layers
 
 ##### Model architecture #####
-def build_model(hp):
-    # create model object
-    model = tf.keras.Sequential([
-    #adding first convolutional layer    
-    tf.keras.layers.Conv2D(
-        #adding filter 
-        filters=hp.Int('conv_1_filter', min_value=32, max_value=512, step=16),
-        # adding filter size or kernel size
-        kernel_size=hp.Choice('conv_1_kernel', values = [1,16]),
-        padding="same",
-        strides = 1,
-        #activation function
-        input_shape=(403,434,1)),
-    #adding first pooling layer   
-    tf.keras.layers.MaxPooling2D(
-        #adding filter 
-        pool_size=hp.Int('pool_1_pool_size', min_value=1, max_value=10, step=16),
-        # adding stride size
-        strides=hp.Choice('pool_1_stride_size', values = [1,16]),
-        padding="valid"),
-    #adding 2nd convolutional layer    
-    tf.keras.layers.Conv2D(
-        #adding filter 
-        filters=hp.Int('conv_2_filter', min_value=32, max_value=512, step=16),
-        # adding filter size or kernel size
-        kernel_size=hp.Choice('conv_2_kernel', values = [1,16]),
-        padding="same",
-        strides = 1,
-        #activation function
-        activation='relu'),
-    #adding 3rd convolutional layer    
-    tf.keras.layers.Conv2D(
-        #adding filter 
-        filters=hp.Int('conv_3_filter', min_value=32, max_value=512, step=16),
-        # adding filter size or kernel size
-        kernel_size=hp.Choice('conv_3_kernel', values = [1,16]),
-        padding="same",
-        strides = 1,
-        #activation function
-        activation='relu'),
-    #adding 2nd POOLING layer   
-    tf.keras.layers.MaxPooling2D(
-        #adding filter 
-        pool_size=hp.Int('pool_2_pool_size', min_value=1, max_value=10, step=16),
-        # adding stride size
-        strides=hp.Choice('pool_2_stride_size', values = [1,16]),
-        padding="valid"),
-        
-    #adding 4th convolutional layer    
-    tf.keras.layers.Conv2D(
-        #adding filter 
-        filters=hp.Int('conv_4_filter', min_value=32, max_value=512, step=16),
-        # adding filter size or kernel size
-        kernel_size=hp.Choice('conv_4_kernel', values = [1,16]),
-        padding="same",
-        strides = 1,
-        #activation function
-        activation='relu'),
-    #adding 5th convolutional layer    
-    tf.keras.layers.Conv2D(
-        #adding filter 
-        filters=hp.Int('conv_5_filter', min_value=32, max_value=512, step=16),
-        # adding filter size or kernel size
-        kernel_size=hp.Choice('conv_5_kernel', values = [1,16]),
-        padding="same",
-        strides = 1,
-        #activation function
-        activation='relu'),
-    #adding 3rd POOLING layer   
-    tf.keras.layers.MaxPooling2D(
-        #adding filter 
-        pool_size=hp.Int('pool_3_pool_size', min_value=1, max_value=10, step=16),
-        # adding stride size
-        strides=hp.Choice('pool_1_stride_size', values = [1,16]),
-        padding="valid"),
-        #activation function
-    
-    # adding flatten layer    
-    tf.keras.layers.Flatten(),
-    # adding dense layer    
-    tf.keras.layers.Dense(
-        units=hp.Int('dense_1_units', min_value=32, max_value=512, step=16),
-        activation='relu'
-    ),
-    # adding dense layer    
-    tf.keras.layers.Dense(
-        units=hp.Int('dense_2_units', min_value=32, max_value=512, step=16),
-        activation='relu'
-    ),
-    # output layer    
-    tf.keras.layers.Dense(n_softmax, activation='softmax')
-    ])
-    #compilation of model
-    model.compile(optimizer=tf.keras.optimizers.Adam(hp.Choice('learning_rate', values=[.001, .0001])),
-              loss='sparse_categorical_crossentropy',
-              metrics=['accuracy'])
-    return model
+inputs = tf.keras.layers.Input(shape=(403,434,1), name="input")
+x = tf.keras.layers.Conv2D(filters=64, kernel_size=7, strides=1, padding="same", activation="relu")(inputs)
 
-#use fthis to hypertune the model before fitting it
-from keras_tuner import RandomSearch
+# MaxPooling2D: pool_size is window size over which to take the max
+x = tf.keras.layers.MaxPooling2D(pool_size=2, strides=31, padding="valid")(x)
+x = tf.keras.layers.Conv2D(filters=128, kernel_size=7, strides=1, padding="same", activation="relu")(x)
+x = tf.keras.layers.Conv2D(filters=128, kernel_size=7, strides=1, padding="same", activation="relu")(x)
+x = tf.keras.layers.MaxPooling2D(pool_size=2, strides=31, padding="valid")(x)
+x = tf.keras.layers.Conv2D(filters=256, kernel_size=7, strides=1, padding = "same", activation = "relu")(x)
+x = tf.keras.layers.Conv2D(filters=256, kernel_size=7, strides=1, padding="same", activation="relu")(x)
+x = tf.keras.layers.MaxPooling2D(pool_size=2, strides=31, padding="valid")(x)
 
-# creating randomsearch object
-tuner = RandomSearch(build_model,
-                    objective='val_accuracy',
-                    max_trials = 5)
+# dense layers expect 1D array of features for each instance so we need to flatten.
+x = tf.keras.layers.Flatten()(x)
+x = tf.keras.layers.Dense(128, activation='relu')(x)
+x = tf.keras.layers.Dense(64, activation='relu')(x)
+yhat = tf.keras.layers.Dense(n_softmax, activation='softmax')(x)
 
-# search best parameter
-# train_df = train_df.astype({"label": np.float32}, errors='raise') # force labels from 64-bit integer to 32-bit float
-# test_df = test_df.astype({"label": np.float32}, errors='raise') # force labels from 64-bit integer to 32-bit float
-train_df = train_df["label"].astype(np.float32)
-test_df = test_df["label"].astype(np.float32)
-tuner.search(train_df, y_train, epochs=3, validation_data=(test_df, y_test))
-
-# get the best model 
-model = tuner.get_best_models(num_models=1)[0]
-
-#summary of best model
+model = tf.keras.Model(inputs = inputs, outputs = yhat)
 model.summary()
 
+# Compile model
+model.compile(loss = 'sparse_categorical_crossentropy', optimizer = tf.keras.optimizers.Adam(learning_rate = 0.0001))
 
-#Fit the best model from the hp search
+# Fit model
 model.fit(x=X_train, y=y_train, batch_size=1, epochs=2) 
 
-#Compute multiclass accuray
+# Compute multiclass accuray
 yhat = model.predict(x=X_test)
 yhat_sparse = [int(np.where(yhat_sub ==np.max(yhat_sub))[0]) for yhat_sub in yhat]
 y_test
