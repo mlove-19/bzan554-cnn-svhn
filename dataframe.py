@@ -30,7 +30,7 @@ test_crop_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test_cropped_images
 test_padded_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test_images_padded'
 train_grey_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/train_images_grey'
 test_grey_jake= 'C:/Users/jamfo/Documents/Deep Learning/SVHN/test_images_grey'
-
+path_repo_jake = 'C:/Users/jamfo/Documents/Deep Learning/bzan554-cnn-svhn'
 
 test_path_cole = 'C:/Users/cole\Documents/Spring MSBA/Deep Learning/SVHN/test'
 train_path_cole='C:/Users/cole\Documents/Spring MSBA/Deep Learning/SVHN/train'
@@ -39,9 +39,20 @@ train_path_cole='C:/Users/cole\Documents/Spring MSBA/Deep Learning/SVHN/train'
 test_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/test'
 train_path_marisa = '/Users/marisamedina/Desktop/BZAN_554_Deep_Learning/assignment3/train'
 
+test_path_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/test'
+train_path_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/train'
+main_path_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN'
+train_crop_matt= 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/train_cropped_images'
+train_padded_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/train_images_padded'
+test_crop_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/test_cropped_images'
+test_padded_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/test_images_padded'
+train_grey_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/train_images_grey'
+test_grey_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/SVHN/test_images_grey'
+path_repo_matt = 'C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3/bzan554-cnn-svhn'
+
 ### Set your paths here####
-train_path = train_path_jake
-test_path = test_path_jake
+train_path = train_path_matt
+test_path = test_path_matt
 
 
 
@@ -110,10 +121,10 @@ for i in range(len(new_train_data)):
     else:
       num[j]=num[j]
   num = int(''.join(map(str,num)))
-  new_train_data.loc[ new_train_data['filename'] == filename, 'label']=num 
+  new_train_data.loc[ new_train_data['filename'] == filename, 'label'] = num
 
 df_train = new_train_data[['filename','label']]
-
+# df_train = df_train.astype({"label": np.float32}, errors='raise') # force 32-bit float for keras_tuner
 
 
 ########################### TEST ####################
@@ -184,8 +195,9 @@ for i in range(len(new_test_data)):
   new_test_data.loc[ new_test_data['filename'] == filename, 'label']=num 
 
 df_test = new_test_data[['filename','label']]
+# df_test = df_test.astype({"label": np.float32}, errors='raise') # force 32-bit float for keras_tuner
 
-path_repo = 'C:/Users/jamfo/Documents/Deep Learning/bzan554-cnn-svhn'
+path_repo = path_repo_matt
 os.chdir(path_repo)
 os.getcwd()
 
