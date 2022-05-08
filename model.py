@@ -64,7 +64,7 @@ X_test = np.asarray(X_test)
 ###################### CNN MODEL ######################
 np.unique(y_train.astype(np.uint8)) # 256 unique classes
 X_train[1].shape # each image is 403x434
-n_softmax = len(str(np.max(y_train))) + 1 # 6+1 softmax layers
+# n_softmax = len(str(np.max(y_train))) + 1 # 6+1 softmax layers
 
 ##### Model architecture #####
 inputs = tf.keras.layers.Input(shape=(403,434,1), name="input")
@@ -77,22 +77,25 @@ x = tf.keras.layers.Conv2D(filters=128, kernel_size=7, strides=1, padding="same"
 x = tf.keras.layers.MaxPooling2D(pool_size=2, strides=31, padding="valid")(x)
 x = tf.keras.layers.Conv2D(filters=256, kernel_size=7, strides=1, padding = "same", activation = "relu")(x)
 x = tf.keras.layers.Conv2D(filters=256, kernel_size=7, strides=1, padding="same", activation="relu")(x)
-x = tf.keras.layers.MaxPooling2D(pool_size=2, strides=31, padding="valid")(x)
+x = tf.keras.layers.MaxPooling2D(pool_size=1, strides=31, padding="valid")(x)
 
 # dense layers expect 1D array of features for each instance so we need to flatten.
 x = tf.keras.layers.Flatten()(x)
 x = tf.keras.layers.Dense(128, activation='relu')(x)
 x = tf.keras.layers.Dense(64, activation='relu')(x)
-yhat = tf.keras.layers.Dense(n_softmax, activation='softmax')(x)
+yhat = tf.keras.layers.Dense(int(np.max(y_train)+1), activation='softmax')(x)
 
 model = tf.keras.Model(inputs = inputs, outputs = yhat)
 model.summary()
 
 # Compile model
-model.compile(loss = 'sparse_categorical_crossentropy', optimizer = tf.keras.optimizers.Adam(learning_rate = 0.0001))
+model.compile(loss = 'sparse_categorical_crossentropy', optimizer = tf.keras.optimizers.Adam(learning_rate = 0.001))
 
 # Fit model
-model.fit(x=X_train, y=y_train, batch_size=1, epochs=2) 
+model.fit(x=X_train, y=y_train, batch_size=1, epochs=2)
+
+os.chdir(path_repo_matt)
+model.save("final_model")
 
 # Compute multiclass accuray
 yhat = model.predict(x=X_test)
