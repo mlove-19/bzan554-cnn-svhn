@@ -94,7 +94,7 @@ model.compile(loss = 'sparse_categorical_crossentropy', optimizer = tf.keras.opt
 # Fit model
 model.fit(x=X_train, y=y_train, batch_size=1, epochs=2)
 
-os.chdir(path_repo_matt)
+os.chdir("C:/MSBA/22SP/BZAN 554 Deep Learning/Projects/project3")
 model.save("final_model")
 
 # Compute multiclass accuray
